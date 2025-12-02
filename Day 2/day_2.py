@@ -3,7 +3,6 @@ import re
 
 def read_file(filename):
     regex = r"(\d+)"
-    regex_parse = lambda line: list(map(int, re.findall(regex, line)))
     
     with open( filename, 'r') as f:
         data = list(map(int, re.findall(regex, next(f))))
