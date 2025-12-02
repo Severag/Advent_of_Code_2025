@@ -1,17 +1,16 @@
-import collections, heapq, itertools, re
-import numpy as np
+import re
 
 
 def read_file(filename):
-    num_parse = lambda line: list(map(int, line.strip().split()))
-    str_parse = lambda line: line.strip().split()
-    regex = r""
-    regex_parse = lambda line: re.findall(regex, line)[0]
+    regex = r"(\d+)"
+    regex_parse = lambda line: list(map(int, re.findall(regex, line)))
     
     with open( filename, 'r') as f:
-        data = list(map(num_parse, f))
+        data = list(map(int, re.findall(regex, next(f))))
     
-    return data
+    ranges = [range(low, high+1) for low,high in zip(data[::2], data[1::2])]
+    
+    return ranges
 
 
 
@@ -24,17 +23,41 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    total = 0
+    
+    for rng in data:
+        for val in rng:
+            string = str(val)
+            
+            idx = len(string) // 2
+            
+            if string[:idx] == string[idx:]:
+                total += val
+    
+    return total
 
 
 
 def part2(data):
-    return
+    total = 0
+    
+    for rng in data:
+        for val in rng:
+            string = str(val)
+            
+            for seq_len in range(1, len(string) // 2 + 1):
+                cand = string[:seq_len]
+                # <string> consists entirely of multiple <cand>'s repeated
+                if len(string.replace(cand, "")) == 0:
+                    total += val
+                    break
+    
+    return total
 
 
 
 if __name__ == '__main__':
-    puzzles = [['test_case.txt', None, None],
+    puzzles = [['test_case.txt', 1_227_775_554, 4_174_379_265],
                ['puzzle_input.txt', ]]
     
     try:
