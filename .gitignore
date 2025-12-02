@@ -1,0 +1,5 @@
+.spyproject
+*/puzzle_input.txt
+*/*.xlsx
+*/*.xlsm
+*/__pycache__/
