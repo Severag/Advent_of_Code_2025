@@ -1,17 +1,21 @@
-import collections, heapq, itertools, re
-import numpy as np
-
-
 def read_file(filename):
-    num_parse = lambda line: list(map(int, line.strip().split()))
-    str_parse = lambda line: line.strip().split()
-    regex = r""
-    regex_parse = lambda line: re.findall(regex, line)[0]
+    ranges = []
+    items = []
+    in_items = False
     
     with open( filename, 'r') as f:
-        data = list(map(num_parse, f))
+        for raw_line in f:
+            line = raw_line.strip().split('-')
+            if in_items:
+                items.append(int(line[0]))
+            elif len(line) < 2:
+                in_items = True
+            else:
+                nums = list(map(int, line))
+                ranges.append(range(nums[0], nums[1] + 1))
     
-    return data
+    return ranges, items
+
 
 
 
@@ -24,17 +28,55 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    ranges, items = data
+    total = 0
+    
+    for ingred in items:
+        fresh = False
+        
+        for rng in ranges:
+            if ingred in rng:
+                fresh = True
+                break
+        
+        if fresh:
+            total += 1
+    
+    return total
 
 
 
 def part2(data):
-    return
+    ranges, items = data
+    
+    merged_one = True
+    
+    while merged_one:
+        merged_one = False
+        
+        for whole_list_index in range(len(ranges)):
+            this = ranges.pop(0)
+            
+            for idx,other in enumerate(ranges):
+                if this.stop in other or this.start in other:
+                    new_start = min(this.start, other.start)
+                    new_stop = max(this.stop, other.stop)
+                    
+                    ranges[idx] = range(new_start, new_stop)
+                    
+                    merged_one = True
+                    break
+            else:  # if no breaks were executed
+                ranges.append(this)
+    
+    total = sum(len(rng) for rng in ranges)
+    
+    return total
 
 
 
 if __name__ == '__main__':
-    puzzles = [['test_case.txt', None, None],
+    puzzles = [['test_case.txt', 3, 14],
                ['puzzle_input.txt', ]]
     
     try:
