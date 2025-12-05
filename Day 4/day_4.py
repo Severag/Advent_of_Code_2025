@@ -3,13 +3,14 @@ import numpy as np
 
 
 def read_file(filename):
-    num_parse = lambda line: list(map(int, line.strip().split()))
-    str_parse = lambda line: line.strip().split()
-    regex = r""
-    regex_parse = lambda line: re.findall(regex, line)[0]
+    str_parse = lambda line: [char == '@' for char in line]
     
     with open( filename, 'r') as f:
-        data = list(map(num_parse, f))
+        data = [str_parse(f".{line.strip()}.") for line in f]
+    
+    # Adding padding to remove edge cases
+    empty = [[False,] * len(data[0])]
+    data = empty + data + empty
     
     return data
 
@@ -24,17 +25,65 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    total = 0
+    
+    for r_idx, row in enumerate(data):
+        for c_idx, val in enumerate(row):
+            # there's a roll here w/ <4 neighbors
+            if val and get_num_neighbors(data, r_idx, c_idx) < 4:
+                total += 1
+    
+    return total
+
+
+
+def get_num_neighbors(board, r, c):
+    rolls = 0
+    
+    for r_idx in range(r - 1, r + 2):
+        for c_idx in range(c - 1, c + 2):
+            if board[r_idx][c_idx] and (r_idx, c_idx) != (r, c):
+                rolls += 1
+    
+    return rolls
 
 
 
 def part2(data):
-    return
+    total = 0
+    removals = 1
+    
+    while removals > 0:
+        data, removals = run_round(data)
+        
+        total += removals
+    
+    return total
+
+
+
+def run_round(board):
+    removals = 0
+    
+    new_board = [[False for val in row] for row in board]
+    
+    for r_idx, row in enumerate(board):
+        for c_idx, val in enumerate(row):
+            # there's a roll here
+            if val:
+                if get_num_neighbors(board, r_idx, c_idx) >= 4:
+                    # it stays for the next round if it has 4+ neighbors
+                    new_board[r_idx][c_idx] = True
+                else:
+                    # we remove it by leaving it's value <False>
+                    removals += 1
+    
+    return new_board, removals
 
 
 
 if __name__ == '__main__':
-    puzzles = [['test_case.txt', None, None],
+    puzzles = [['test_case.txt', 13, 43],
                ['puzzle_input.txt', ]]
     
     try:
