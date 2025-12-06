@@ -19,8 +19,8 @@ def read_file(filename):
     alternate = [new_row]
     
     # create numbers by columns
-    for idx,val in enumerate(file_data[0]):
-        string = ''.join(row[idx] for row in file_data[:-1]).strip()
+    for col in zip(*file_data[:-1]):
+        string = ''.join(col).strip()
         
         if string.isdigit():
             new_row.append(int(string))
@@ -44,9 +44,7 @@ def part1(data):
     rows, operations, _ = data
     total = 0
     
-    for idx,op in enumerate(operations):
-        numbers = [r[idx] for r in rows]
-        
+    for *numbers,op in zip(*rows, operations):
         total += sum(numbers) if op == '+' else list_prod(numbers)
     
     return total
