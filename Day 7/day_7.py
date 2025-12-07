@@ -1,15 +1,11 @@
-import collections, heapq, itertools, re
-import numpy as np
+import copy
 
 
 def read_file(filename):
-    num_parse = lambda line: list(map(int, line.strip().split()))
-    str_parse = lambda line: line.strip().split()
-    regex = r""
-    regex_parse = lambda line: re.findall(regex, line)[0]
+    str_parse = lambda line: list(f".{line.replace('S', '|').strip()}.")
     
-    with open( filename, 'r') as f:
-        data = list(map(num_parse, f))
+    with open(filename, 'r') as f:
+        data = list(map(str_parse, f))
     
     return data
 
@@ -24,17 +20,46 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    total = 0
+    board = copy.deepcopy(data)
+    
+    for r_idx, row in enumerate(board[:-1]):
+        for c_idx, val in enumerate(row):
+            if val == '|':
+                # found a splitter
+                if board[r_idx + 1][c_idx] == '^':
+                    board[r_idx + 1][c_idx - 1] = '|'
+                    board[r_idx + 1][c_idx + 1] = '|'
+                    total += 1
+                else:
+                    board[r_idx + 1][c_idx] = '|'
+    
+    return total
 
 
 
 def part2(data):
-    return
+    decoder = {'.':0,
+               '^':'^',
+               '|':1,}
+    board = [[decoder[val] for val in row] for row in data]
+    
+    for r_idx, row in enumerate(board[:-1]):
+        for c_idx, val in enumerate(row):
+            if isinstance(val, int):
+                # found a splitter
+                if board[r_idx + 1][c_idx] == '^':
+                    board[r_idx + 1][c_idx - 1] += val
+                    board[r_idx + 1][c_idx + 1] += val
+                else:
+                    board[r_idx + 1][c_idx] += val
+    
+    return sum(val for val in board[-1] if isinstance(val, int))
 
 
 
 if __name__ == '__main__':
-    puzzles = [['test_case.txt', None, None],
+    puzzles = [['test_case.txt', 21, 40],
                ['puzzle_input.txt', ]]
     
     try:
