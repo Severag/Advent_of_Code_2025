@@ -1,5 +1,4 @@
-import collections, heapq, itertools, re, ipdb
-import numpy as np
+import re
 
 
 def read_file(filename):
@@ -25,7 +24,7 @@ def read_file(filename):
         square_counts.append(count)
     
     spaces = list(map(regex_parse, area_defs.split('\n')))
-    ipdb.set_trace()
+    
     return all_shapes, square_counts, spaces
 
 
@@ -51,8 +50,6 @@ def part1(data):
         
         if needed_area <= avail_area:
             total += 1
-    
-    print(f"{total} lines passed the feasibility study, out of {len(spaces)}")
     
     return total
 
