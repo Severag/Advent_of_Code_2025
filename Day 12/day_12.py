@@ -1,17 +1,32 @@
-import collections, heapq, itertools, re
+import collections, heapq, itertools, re, ipdb
 import numpy as np
 
 
 def read_file(filename):
-    num_parse = lambda line: list(map(int, line.strip().split()))
-    str_parse = lambda line: line.strip().split()
-    regex = r""
-    regex_parse = lambda line: re.findall(regex, line)[0]
+    num_parse = lambda numlist: list(map(int, numlist))
+    regex = r"(\d+)"
+    regex_parse = lambda line: num_parse(re.findall(regex, line))
+    
+    all_shapes = []
+    square_counts = []
     
     with open( filename, 'r') as f:
-        data = list(map(num_parse, f))
+        *shape_defs, area_defs = f.read().split('\n\n')
+        
+    for definition in shape_defs:
+        shape = []
+        count = 0
+        for line in definition.split()[1:]:  # skipping label
+            row = [char == '#' for char in line.strip()]
+            shape.append(row)
+            count += row.count(True)
+        
+        all_shapes.append(shape)
+        square_counts.append(count)
     
-    return data
+    spaces = list(map(regex_parse, area_defs.split('\n')))
+    ipdb.set_trace()
+    return all_shapes, square_counts, spaces
 
 
 
@@ -24,7 +39,22 @@ def solve(data, do_1=True, do_2=True):
 
 
 def part1(data):
-    return
+    all_shapes, square_counts, spaces = data
+    total = 0
+    
+    for length, width, *shape_counts in spaces:
+        avail_area = length * width
+        
+        needed_area = 0
+        for footprint, count in zip(square_counts, shape_counts):
+            needed_area += footprint * count
+        
+        if needed_area <= avail_area:
+            total += 1
+    
+    print(f"{total} lines passed the feasibility study, out of {len(spaces)}")
+    
+    return total
 
 
 
@@ -34,8 +64,8 @@ def part2(data):
 
 
 if __name__ == '__main__':
-    puzzles = [['test_case.txt', None, None],
-               ['puzzle_input.txt', ]]
+    puzzles = [['test_case.txt', 2, None],
+               ['puzzle_input.txt', ]]  # 592 too low
     
     try:
         import AoC_testing
